@@ -1,0 +1,519 @@
+/* ===================================================================
+   Japanese Walking Timer — stylesheet
+   Sections: tokens, layout, dial/run view, list, buttons, edit view
+   =================================================================== */
+
+:root {
+  /* colors */
+  --ink: #10161d;
+  --panel: #1a222b;
+  --panel-hi: #212b36;
+  --line: rgba(255, 255, 255, 0.08);
+  --text: #edeff2;
+  --text-dim: #8b96a3;
+
+  /* intensity accent colors, keyed to speed */
+  --c-warmup: #7fa37a; /* low speed: warm-up / cool-down */
+  --c-santai: #5f8fbf; /* easy walk */
+  --c-cepat: #d9a441; /* brisk walk */
+  --c-jog: #c1553c; /* jog */
+
+  /* type */
+  --font-display: "Bebas Neue", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: radial-gradient(ellipse 900px 600px at 50% -10%, rgba(255, 255, 255, 0.05), transparent 60%), var(--ink);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px 40px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 460px;
+}
+
+/* ---------- header ---------- */
+
+header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  gap: 12px;
+}
+
+.header-text {
+  text-align: left;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  margin-top: 4px;
+}
+
+.edit-toggle {
+  flex: 0 0 auto;
+  background: var(--panel-hi);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  padding: 9px 13px;
+  border-radius: 100px;
+  cursor: pointer;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+.edit-toggle:active {
+  transform: scale(0.97);
+}
+
+/* ---------- segment timeline strip ---------- */
+
+.timeline {
+  display: flex;
+  gap: 4px;
+  margin: 22px 0 26px;
+}
+
+.tl-seg {
+  height: 7px;
+  flex: 1;
+  border-radius: 4px;
+  background: var(--panel-hi);
+  position: relative;
+  overflow: hidden;
+}
+
+.tl-seg .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  background: var(--seg-color, var(--c-santai));
+  transition: width 0.3s linear;
+}
+
+/* ---------- main dial card ---------- */
+
+.dial-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 28px 20px 24px;
+  text-align: center;
+  position: relative;
+}
+
+.phase-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--seg-color, var(--c-santai));
+  background: color-mix(in srgb, var(--seg-color, var(--c-santai)) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--seg-color, var(--c-santai)) 40%, transparent);
+  padding: 5px 12px;
+  border-radius: 100px;
+}
+
+.segment-name {
+  font-family: var(--font-display);
+  font-size: 30px;
+  margin-top: 12px;
+  color: var(--text);
+}
+
+.ring-box {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  margin: 20px auto 6px;
+}
+
+.ring-box svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ring-bg {
+  fill: none;
+  stroke: var(--panel-hi);
+  stroke-width: 12;
+}
+
+.ring-fg {
+  fill: none;
+  stroke: var(--seg-color, var(--c-santai));
+  stroke-width: 12;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.25s linear, stroke 0.4s;
+}
+
+.ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-left {
+  font-family: var(--font-display);
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.badge-row {
+  margin-top: 8px;
+  display: flex;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.badge-row b {
+  color: var(--text);
+  font-size: 16px;
+}
+
+.badge-row .sep {
+  color: var(--line);
+}
+
+.next-up {
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--text-dim);
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  align-items: baseline;
+  text-align: center;
+}
+
+.next-up b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.totals {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 22px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.totals span b {
+  color: var(--text);
+}
+
+.done-banner {
+  display: none;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--c-warmup);
+  margin-top: 18px;
+}
+
+.done-banner.show {
+  display: block;
+}
+
+/* ---------- buttons (shared) ---------- */
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+button {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  border-radius: 12px;
+  padding: 15px 0;
+  cursor: pointer;
+  flex: 1;
+  transition: transform 0.08s ease, opacity 0.2s;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--text);
+  color: var(--ink);
+}
+
+.btn-secondary {
+  background: var(--panel-hi);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.btn-icon {
+  flex: 0 0 auto;
+  width: 48px;
+  background: var(--panel-hi);
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon.active {
+  color: var(--text);
+}
+
+/* ---------- segment list (read-only, run view) ---------- */
+
+.list-card {
+  margin-top: 24px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.list-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  padding: 14px 18px 8px;
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 18px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.list-row .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--seg-color);
+  flex: 0 0 auto;
+}
+
+.list-row .rname {
+  flex: 1;
+  color: var(--text);
+}
+
+.list-row .rmeta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: right;
+}
+
+.list-row.current {
+  background: var(--panel-hi);
+}
+
+.list-row.current .rname {
+  font-weight: 600;
+}
+
+.list-row.past {
+  opacity: 0.4;
+}
+
+/* ---------- edit view ---------- */
+
+#viewEdit {
+  display: none;
+}
+
+#viewEdit.show {
+  display: block;
+}
+
+#viewRun.hide {
+  display: none;
+}
+
+.edit-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 18px 16px 20px;
+}
+
+.edit-card .list-title {
+  padding: 2px 2px 14px;
+}
+
+.erow {
+  display: grid;
+  grid-template-columns: 22px 1fr 34px;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 8px;
+  padding: 14px 4px;
+  border-top: 1px solid var(--line);
+  align-items: center;
+}
+
+.erow:first-of-type {
+  border-top: none;
+}
+
+.erow .eidx {
+  grid-row: 1 / 3;
+  align-self: start;
+  margin-top: 11px;
+}
+
+.erow input[type="text"] {
+  grid-column: 2 / 3;
+  background: var(--panel-hi);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 9px;
+  padding: 9px 11px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  width: 100%;
+}
+
+.erow .efields {
+  grid-column: 2 / 3;
+  display: flex;
+  gap: 8px;
+}
+
+.efield {
+  flex: 1;
+}
+
+.efield label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.efield input[type="number"] {
+  width: 100%;
+  background: var(--panel-hi);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 9px;
+  padding: 8px 8px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  text-align: center;
+}
+
+.erow .edel {
+  grid-column: 3 / 4;
+  grid-row: 1 / 3;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 6px;
+}
+
+.erow .edel:active {
+  color: var(--c-jog);
+}
+
+.add-row-btn {
+  margin-top: 14px;
+  width: 100%;
+  background: transparent;
+  border: 1px dashed var(--line);
+  color: var(--text-dim);
+  border-radius: 12px;
+  padding: 13px 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.add-row-btn:active {
+  transform: scale(0.99);
+}
+
+.edit-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.edit-summary b {
+  color: var(--text);
+}
+
+.edit-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
